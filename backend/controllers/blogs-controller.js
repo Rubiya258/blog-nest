@@ -2,19 +2,40 @@ const { validationResult } = require("express-validator");
 const HttpError = require("../models/http-error");
 const Blog = require("../models/blog");
 
-// Retrieve blog post by ID
-const getBlogById = async (req, res, next) => {
-  const blogId = req.params.blogId;
+// const dummyBlogs = [
+//   {
+//     title: "The Ultimate Guide to Cooking Pasta",
+//     content: "Learn how to cook perfect pasta every time, from boiling water to sauce pairings!",
+//     user: "chefGordon",
+//     date: new Date("2023-11-01")
+//   },
+//   {
+//     title: "Mastering Homemade Sauces",
+//     content: "A comprehensive guide on creating rich and flavorful homemade sauces.",
+//     user: "chefJamie",
+//     date: new Date("2023-11-05")
+//   },
+//   {
+//     title: "Baking the Perfect Sourdough",
+//     content: "Everything you need to know to bake a perfect loaf of sourdough from scratch.",
+//     user: "chefMary",
+//     date: new Date("2023-11-10")
+//   }
+// ];
+
+// Retrieve blog post by username
+const getBlogByUser = async (req, res, next) => {
+  const username = req.params.username;
 
   let blog;
   try {
-    blog = await Blog.findById(blogId);
+    blog = await Blog.find({ user: username });
   } catch (err) {
-    return next(new HttpError("Could not find a blog for the provided id.", 500));
+    return next(new HttpError("Could not find a blog for the provided user.", 500));
   }
 
   if (!blog) {
-    return next(new HttpError("No blog found for the provided id.", 404));
+    return next(new HttpError("No blog found for the provided user.", 404));
   }
 
   res.json({ blog: blog.toObject({ getters: true }) });
@@ -27,12 +48,12 @@ const createBlog = async (req, res, next) => {
     return next(new HttpError("Invalid input, please check your data.", 422));
   }
 
-  const { title, content, author } = req.body;
+  const { title, content, user } = req.body;
 
   const createdBlog = new Blog({
     title,
     content,
-    author,
+    user,
     date: new Date(),
   });
 
@@ -97,7 +118,7 @@ const deleteBlog = async (req, res, next) => {
   res.status(200).json({ message: "Blog deleted." });
 };
 
-exports.getBlogById = getBlogById;
+exports.getBlogByUser = getBlogByUser;
 exports.createBlog = createBlog;
 exports.getAllBlogs = getAllBlogs;
 exports.updateBlog = updateBlog;

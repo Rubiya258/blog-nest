@@ -61,4 +61,21 @@ const createUser = (req, res, next) => {
   res.status(201).json({ user: newUser });
 };
 
+
+const loginUser = (req, res, next) => {
+  const { email, password } = req.body;
+
+  const foundUser = DUMMY_USERS.find(
+    (user) => user.email === email && user.password === password
+  );
+
+  if(foundUser){
+    const error = new HttpError("Wrong Username or Password, please enter correct username and password! Try again.", 401);
+    return next(error);
+  }
+
+  res.status(200).json({ message: "Login successful", user: foundUser });
+};
+
 exports.createUser = createUser;
+exports.loginUser = loginUser;
